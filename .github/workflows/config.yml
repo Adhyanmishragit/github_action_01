@@ -34,21 +34,17 @@ jobs:
             token = "${{ secrets.DATABRICKS_TOKEN }}"
           }' >> main.tf
 
-          echo 'variable "databricks_host" {
-            description = "The Databricks workspace URL"
-            type        = string
-          }' >> main.tf
-
-          echo 'variable "databricks_token" {
-            description = "The Databricks personal access token"
-            type        = string
+          echo 'resource "databricks_notebook" "this" {
+            path     = "/Users/your_email@example.com/Terraform/YourNotebook"
+            language = "PYTHON"
+            content_base64 = base64encode(file("your_notebook.py"))
           }' >> main.tf
 
       - name: Initialize Terraform
         run: terraform init
 
       - name: Plan Terraform Deployment
-        run: terraform plan -out=tfplan -input=false
+        run: terraform plan -out=tfplan -input=false -var="databricks_host=${{ secrets.DATABRICKS_HOST }}" -var="databricks_token=${{ secrets.DATABRICKS_TOKEN }}"
 
       - name: Apply Terraform Deployment
         run: terraform apply -auto-approve tfplan
