@@ -20,21 +20,21 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./DataDog-Demo/terraform  # Adjust this path if your .tf files are located elsewhere
+        working-directory: cluster_creation/notebook_creation_db  # Adjusted path based on your directory structure
 
       - name: Terraform Format
         run: terraform fmt -check
-        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
+        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory: ./DataDog-Demo/terraform  # Validate the configuration files
+        working-directory: cluster_creation/notebook_creation_db  # Validate the configuration files
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -input=false
-        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
+        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
-        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
+        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
