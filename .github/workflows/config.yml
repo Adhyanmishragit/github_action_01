@@ -11,22 +11,26 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.0  # Specify the Terraform version you want to use
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./DataDog-Demo/terraform  # Set the working directory to where your .tf files are located
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan -input=false
+        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
 
       - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve tfplan
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
+        working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
