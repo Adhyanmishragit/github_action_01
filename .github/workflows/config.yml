@@ -1,9 +1,9 @@
-name: Deploy Databricks Notebooks
+name: Deploy Databricks Notebook
 
 on:
   push:
     branches:
-      - main  # Change this to your default branch if it's different
+      - main  # Change this to your default branch if needed
 
 jobs:
   terraform:
@@ -11,30 +11,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.4.0  # Specify the Terraform version you want to use
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: cluster_creation/notebook_creation_db  # Adjusted path based on your directory structure
+      - name: Create Databricks Notebook
+        run: |
+          echo 'provider "databricks" {
+            host  = "${{ secrets.DATABRICKS_HOST }}"
+            token = "${{ secrets.DATABRICKS_TOKEN }}"
+          }' > main.tf
 
-      - name: Terraform Format
-        run: terraform fmt -check
-        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
+          echo 'resource "databricks_notebook" "this" {
+            path     = "/Users/your_email@example.com/Terraform/YourNotebook"
+            language = "PYTHON"
+            content_base64 = base64encode(file("your_notebook.py"))
+          }' >> main.tf
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: cluster_creation/notebook_creation_db  # Validate the configuration files
+          echo 'your_notebook_content' > your_notebook.py  # Replace with actual notebook content
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan -input=false
-        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
-
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve tfplan
-        working-directory: cluster_creation/notebook_creation_db  # Ensure this points to your .tf files
+          terraform init
+          terraform plan -out=tfplan -input=false
+          terraform apply -auto-approve tfplan
