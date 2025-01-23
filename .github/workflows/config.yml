@@ -20,11 +20,15 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-        working-directory: ./DataDog-Demo/terraform  # Set the working directory to where your .tf files are located
+        working-directory: ./DataDog-Demo/terraform  # Adjust this path if your .tf files are located elsewhere
 
       - name: Terraform Format
         run: terraform fmt -check
         working-directory: ./DataDog-Demo/terraform  # Ensure this points to your .tf files
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./DataDog-Demo/terraform  # Validate the configuration files
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan -input=false
